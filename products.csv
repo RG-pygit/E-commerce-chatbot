@@ -1,0 +1,51 @@
+product_id,name,category,brand,price_inr,availability,processor,ram,storage,display,battery,color,warranty,description
+PRD051,NovaTech Laptop 151,Laptop,NovaTech,91399,In Stock,Intel Core i5,8 GB,1 TB SSD,13.3-inch Full HD,Up to 12 hours,Silver,1 year,Synthetic demo laptop from NovaTech for RAG testing.
+PRD052,AsterMobile Smartphone 152,Smartphone,AsterMobile,93199,In Stock,Octa-core A1,8 GB,128 GB,6.1-inch OLED,Up to 30 hours,Silver,1 year,Synthetic demo smartphone from AsterMobile for RAG testing.
+PRD053,OrbitTab Tablet 153,Tablet,OrbitTab,94899,In Stock,Octa-core T1,8 GB,256 GB,12.4-inch AMOLED,Up to 14 hours,Graphite,1 year,Synthetic demo tablet from OrbitTab for RAG testing.
+PRD054,FitPulse Smartwatch 154,Smartwatch,FitPulse,96599,In Stock,WearChip S1,4 GB,32 GB,1.6-inch AMOLED,Up to 7 days,Black,2 years,Synthetic demo smartwatch from FitPulse for RAG testing.
+PRD055,VisionMax Television 155,Television,VisionMax,98399,Out of Stock,Quad-core V1,2 GB,32 GB,55-inch 4K UHD,N/A,Green,1 year,Synthetic demo television from VisionMax for RAG testing.
+PRD056,PixelView Monitor 156,Monitor,PixelView,100099,Limited Stock,N/A,N/A,N/A,32-inch 4K UHD,N/A,Silver,1 year,Synthetic demo monitor from PixelView for RAG testing.
+PRD057,Sonic Headphones 157,Headphones,Sonic,101799,In Stock,AudioChip H1,N/A,N/A,N/A,Up to 30 hours,Black,1 year,Synthetic demo headphones from Sonic for RAG testing.
+PRD058,EchoBeat Speaker 158,Speaker,EchoBeat,103599,In Stock,AudioChip S1,N/A,N/A,N/A,Up to 18 hours,Graphite,1 year,Synthetic demo speaker from EchoBeat for RAG testing.
+PRD059,Lumina Camera 159,Camera,Lumina,105299,In Stock,VisionChip C2,N/A,N/A,N/A,Up to 6 hours,Graphite,1 year,Synthetic demo camera from Lumina for RAG testing.
+PRD060,GameForge GamingConsole 160,Gaming Console,GameForge,106999,In Stock,GameChip G1,16 GB,512 GB SSD,N/A,N/A,Black,1 year,Synthetic demo gaming console from GameForge for RAG testing.
+PRD061,NovaTech Laptop 161,Laptop,NovaTech,108799,In Stock,AMD Ryzen 5,16 GB,256 GB SSD,14-inch Full HD,Up to 8 hours,Green,1 year,Synthetic demo laptop from NovaTech for RAG testing.
+PRD062,AsterMobile Smartphone 162,Smartphone,AsterMobile,110499,In Stock,Octa-core A1,12 GB,128 GB,6.5-inch AMOLED,Up to 30 hours,Graphite,1 year,Synthetic demo smartphone from AsterMobile for RAG testing.
+PRD063,OrbitTab Tablet 163,Tablet,OrbitTab,112199,Limited Stock,Octa-core T1,4 GB,64 GB,10.5-inch LCD,Up to 14 hours,Black,2 years,Synthetic demo tablet from OrbitTab for RAG testing.
+PRD064,FitPulse Smartwatch 164,Smartwatch,FitPulse,113999,In Stock,WearChip S1,4 GB,64 GB,1.6-inch AMOLED,Up to 7 days,White,1 year,Synthetic demo smartwatch from FitPulse for RAG testing.
+PRD065,VisionMax Television 165,Television,VisionMax,115699,In Stock,Quad-core V1,4 GB,16 GB,55-inch 4K UHD,N/A,White,1 year,Synthetic demo television from VisionMax for RAG testing.
+PRD066,PixelView Monitor 166,Monitor,PixelView,117399,Out of Stock,N/A,N/A,N/A,24-inch Full HD,N/A,Black,1 year,Synthetic demo monitor from PixelView for RAG testing.
+PRD067,Sonic Headphones 167,Headphones,Sonic,119199,In Stock,AudioChip H1,N/A,N/A,N/A,Up to 30 hours,Silver,1 year,Synthetic demo headphones from Sonic for RAG testing.
+PRD068,EchoBeat Speaker 168,Speaker,EchoBeat,120899,In Stock,AudioChip S1,N/A,N/A,N/A,Up to 12 hours,Silver,1 year,Synthetic demo speaker from EchoBeat for RAG testing.
+PRD069,Lumina Camera 169,Camera,Lumina,122599,In Stock,VisionChip C1,N/A,N/A,N/A,Up to 6 hours,Silver,1 year,Synthetic demo camera from Lumina for RAG testing.
+PRD070,GameForge GamingConsole 170,Gaming Console,GameForge,124399,Limited Stock,GameChip G2,16 GB,512 GB SSD,N/A,N/A,Silver,1 year,Synthetic demo gaming console from GameForge for RAG testing.
+PRD071,NovaTech Laptop 171,Laptop,NovaTech,126099,In Stock,Intel Core i5,32 GB,512 GB SSD,13.3-inch Full HD,Up to 12 hours,Graphite,1 year,Synthetic demo laptop from NovaTech for RAG testing.
+PRD072,AsterMobile Smartphone 172,Smartphone,AsterMobile,127799,In Stock,Octa-core A1,8 GB,256 GB,6.1-inch OLED,Up to 30 hours,Graphite,2 years,Synthetic demo smartphone from AsterMobile for RAG testing.
+PRD073,OrbitTab Tablet 173,Tablet,OrbitTab,129599,In Stock,Octa-core T2,12 GB,64 GB,12.4-inch AMOLED,Up to 14 hours,Graphite,1 year,Synthetic demo tablet from OrbitTab for RAG testing.
+PRD074,FitPulse Smartwatch 174,Smartwatch,FitPulse,131299,In Stock,WearChip S2,4 GB,64 GB,1.8-inch AMOLED,Up to 7 days,Graphite,1 year,Synthetic demo smartwatch from FitPulse for RAG testing.
+PRD075,VisionMax Television 175,Television,VisionMax,132999,In Stock,Quad-core V1,2 GB,32 GB,65-inch 4K UHD,N/A,Green,1 year,Synthetic demo television from VisionMax for RAG testing.
+PRD076,PixelView Monitor 176,Monitor,PixelView,134799,In Stock,N/A,N/A,N/A,32-inch 4K UHD,N/A,Silver,1 year,Synthetic demo monitor from PixelView for RAG testing.
+PRD077,Sonic Headphones 177,Headphones,Sonic,136499,Out of Stock,AudioChip H2,N/A,N/A,N/A,Up to 40 hours,Blue,1 year,Synthetic demo headphones from Sonic for RAG testing.
+PRD078,EchoBeat Speaker 178,Speaker,EchoBeat,138199,In Stock,AudioChip S1,N/A,N/A,N/A,Up to 12 hours,Silver,1 year,Synthetic demo speaker from EchoBeat for RAG testing.
+PRD079,Lumina Camera 179,Camera,Lumina,139999,In Stock,VisionChip C2,N/A,N/A,N/A,Up to 6 hours,White,1 year,Synthetic demo camera from Lumina for RAG testing.
+PRD080,GameForge GamingConsole 180,Gaming Console,GameForge,141699,In Stock,GameChip G1,16 GB,512 GB SSD,N/A,N/A,Graphite,1 year,Synthetic demo gaming console from GameForge for RAG testing.
+PRD081,NovaTech Laptop 181,Laptop,NovaTech,143399,In Stock,Intel Core i5,16 GB,512 GB SSD,15.6-inch Full HD,Up to 12 hours,White,2 years,Synthetic demo laptop from NovaTech for RAG testing.
+PRD082,AsterMobile Smartphone 182,Smartphone,AsterMobile,145199,In Stock,Octa-core A2,8 GB,256 GB,6.1-inch OLED,Up to 24 hours,Green,1 year,Synthetic demo smartphone from AsterMobile for RAG testing.
+PRD083,OrbitTab Tablet 183,Tablet,OrbitTab,146899,In Stock,Octa-core T1,4 GB,128 GB,10.5-inch LCD,Up to 10 hours,Green,1 year,Synthetic demo tablet from OrbitTab for RAG testing.
+PRD084,FitPulse Smartwatch 184,Smartwatch,FitPulse,148599,Limited Stock,WearChip S2,2 GB,32 GB,1.6-inch AMOLED,Up to 7 days,White,1 year,Synthetic demo smartwatch from FitPulse for RAG testing.
+PRD085,VisionMax Television 185,Television,VisionMax,150399,In Stock,Quad-core V2,4 GB,32 GB,65-inch 4K UHD,N/A,Graphite,1 year,Synthetic demo television from VisionMax for RAG testing.
+PRD086,PixelView Monitor 186,Monitor,PixelView,152099,In Stock,N/A,N/A,N/A,27-inch QHD,N/A,White,1 year,Synthetic demo monitor from PixelView for RAG testing.
+PRD087,Sonic Headphones 187,Headphones,Sonic,153799,In Stock,AudioChip H2,N/A,N/A,N/A,Up to 40 hours,Black,1 year,Synthetic demo headphones from Sonic for RAG testing.
+PRD088,EchoBeat Speaker 188,Speaker,EchoBeat,155599,Out of Stock,AudioChip S1,N/A,N/A,N/A,Up to 18 hours,Graphite,1 year,Synthetic demo speaker from EchoBeat for RAG testing.
+PRD089,Lumina Camera 189,Camera,Lumina,157299,In Stock,VisionChip C1,N/A,N/A,N/A,Up to 6 hours,Green,1 year,Synthetic demo camera from Lumina for RAG testing.
+PRD090,GameForge GamingConsole 190,Gaming Console,GameForge,158999,In Stock,GameChip G1,16 GB,512 GB SSD,N/A,N/A,Silver,2 years,Synthetic demo gaming console from GameForge for RAG testing.
+PRD091,NovaTech Laptop 191,Laptop,NovaTech,160799,Limited Stock,AMD Ryzen 7,16 GB,256 GB SSD,13.3-inch Full HD,Up to 10 hours,Blue,1 year,Synthetic demo laptop from NovaTech for RAG testing.
+PRD092,AsterMobile Smartphone 192,Smartphone,AsterMobile,162499,In Stock,Octa-core A1,12 GB,256 GB,6.5-inch AMOLED,Up to 24 hours,Silver,1 year,Synthetic demo smartphone from AsterMobile for RAG testing.
+PRD093,OrbitTab Tablet 193,Tablet,OrbitTab,164199,In Stock,Octa-core T2,8 GB,128 GB,12.4-inch AMOLED,Up to 10 hours,Blue,1 year,Synthetic demo tablet from OrbitTab for RAG testing.
+PRD094,FitPulse Smartwatch 194,Smartwatch,FitPulse,165999,In Stock,WearChip S1,4 GB,64 GB,1.8-inch AMOLED,Up to 5 days,Blue,1 year,Synthetic demo smartwatch from FitPulse for RAG testing.
+PRD095,VisionMax Television 195,Television,VisionMax,167699,In Stock,Quad-core V2,4 GB,16 GB,55-inch 4K UHD,N/A,Graphite,1 year,Synthetic demo television from VisionMax for RAG testing.
+PRD096,PixelView Monitor 196,Monitor,PixelView,169399,In Stock,N/A,N/A,N/A,24-inch Full HD,N/A,White,1 year,Synthetic demo monitor from PixelView for RAG testing.
+PRD097,Sonic Headphones 197,Headphones,Sonic,171199,In Stock,AudioChip H2,N/A,N/A,N/A,Up to 40 hours,Silver,1 year,Synthetic demo headphones from Sonic for RAG testing.
+PRD098,EchoBeat Speaker 198,Speaker,EchoBeat,172899,Limited Stock,AudioChip S1,N/A,N/A,N/A,Up to 18 hours,Silver,1 year,Synthetic demo speaker from EchoBeat for RAG testing.
+PRD099,Lumina Camera 199,Camera,Lumina,174599,Out of Stock,VisionChip C2,N/A,N/A,N/A,Up to 6 hours,Green,2 years,Synthetic demo camera from Lumina for RAG testing.
+PRD100,GameForge GamingConsole 200,Gaming Console,GameForge,176299,In Stock,GameChip G1,16 GB,512 GB SSD,N/A,N/A,Black,1 year,Synthetic demo gaming console from GameForge for RAG testing.
