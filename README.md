@@ -1,2 +1,2 @@
 # E-commerce-chatbot
-create a interactive e-commerce chatbot customers with AI agents
+create an interactive e-commerce chatbot for customers with AI agents
