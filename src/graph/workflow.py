@@ -1,7 +1,10 @@
 from langgraph.graph import StateGraph, START, END
 
 from src.graph.state import ChatbotState
-from src.graph.nodes import (router_node, conversation_node,retrieve_node, generate_node)
+from src.graph.nodes import (router_node, conversation_node,rewrite_query_node,retrieve_node, generate_node)
+
+from langgraph.checkpoint.memory import InMemorySaver
+from langchain_core.messages import HumanMessage
 
 def decide_route(state: ChatbotState):
     """
@@ -20,6 +23,7 @@ def build_graph():
     # Add nodes
     builder.add_node("router", router_node)
     builder.add_node("conversation", conversation_node)
+    builder.add_node("rewrite_query",rewrite_query_node)
     builder.add_node("retrieve", retrieve_node)
     builder.add_node("generate", generate_node)
 
@@ -29,64 +33,96 @@ def build_graph():
 
     # Conditional routing
     builder.add_conditional_edges(
-            "router",
-            decide_route,
-            {
-                "conversation": "conversation",
-                "rag": "retrieve"
-            }
+    "router",
+    decide_route,
+    {
+        "conversation": "conversation",
+        "rag": "rewrite_query"
+    }
         )
 
     # Conversation path
     builder.add_edge("conversation", END)
 
     # RAG path
+    builder.add_edge("rewrite_query","retrieve")
     builder.add_edge("retrieve", "generate")
     builder.add_edge("generate", END)
     
 
     # Compile graph
-    graph = builder.compile()
+    memory = InMemorySaver()
 
-    return graph
+    return builder.compile(
+    checkpointer=memory
+)
 
 
 if __name__ == "__main__":
 
     graph = build_graph()
 
-    question = input("\nAsk a product or policy question: ")
+    config = {
+        "configurable": {
+            "thread_id": "customer-1"
+        }
+    }
+   
+    while True:
 
-    initial_state = {
-    "question": question,
-    "route": "",
-    "documents": [],
-    "answer": ""
-}
+        question = input(
+            "\nAsk a product or policy question "
+            "(or type 'exit'): "
+        )
 
-    result = graph.invoke(initial_state)
+        if question.strip().lower() == "exit":
+            print("Chat ended.")
+            break
 
-    print("\n" + "=" * 60)
-    print("ANSWER")
-    print("=" * 60)
+        input_state = {
+            "question": question,
+            "messages": [
+                HumanMessage(content=question)
+            ]
+        }
 
-    print(result["answer"])
+        result = graph.invoke(
+            input_state,
+            config=config
+        )
 
-    print("\n" + "=" * 60)
-    print("SOURCES")
-    print("=" * 60)
+        print("\n" + "=" * 60)
+        print("ANSWER")
+        print("=" * 60)
+        print(result["answer"])
 
-    for document in result["documents"]:
+        print("\n" + "=" * 60)
+        print("MESSAGES STORED")
+        print("=" * 60)
 
-        source = document.metadata.get(
+        for message in result["messages"]:
+            print(
+                f"{type(message).__name__}: "
+                f"{message.content}"
+            )
+
+    
+
+        print("\n" + "=" * 60)
+        print("SOURCES")
+        print("=" * 60)
+
+        for document in result["documents"]:
+
+            source = document.metadata.get(
             "source",
             "Unknown"
         )
 
-        item = (
+            item = (
             document.metadata.get("product_name")
             or document.metadata.get("policy_type")
             or "Unknown"
         )
 
-        print(f"- {source}: {item}")
+            print(f"- {source}: {item}")

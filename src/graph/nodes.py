@@ -6,6 +6,7 @@ from src.rag.generator import (
 )
 
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import AIMessage
 
 def router_node(state: ChatbotState):
     """
@@ -109,7 +110,10 @@ def conversation_node(state: ChatbotState):
         answer = "Hello! How can I help you today?"
 
     return {
-        "answer": answer
+        "answer": answer,
+        "messages": [
+        AIMessage(content=answer)
+    ]
     }
 
 
@@ -118,10 +122,10 @@ def retrieve_node(state: ChatbotState):
     Retrieve relevant documents from Chroma.
     """
 
-    question = state["question"]
+    retrieval_query = state["retrieval_query"]
 
     documents = search(
-        question,
+        retrieval_query,
         k=3
     )
 
@@ -215,5 +219,94 @@ Answer the customer's specific question using only the retrieved context.
     )
 
     return {
-        "answer": response.content
+        "answer": response.content,
+        "messages": [
+        AIMessage(content=response.content)
+        ]
+    }
+
+##### rewrite node to re write customer follow up question####
+def rewrite_query_node(state: ChatbotState):
+    """
+    Rewrite a follow-up question into a standalone retrieval query
+    using the conversation history.
+    """
+
+    question = state["question"]
+    messages = state["messages"]
+
+    llm = get_llm()
+
+    # Exclude the latest HumanMessage because the current question
+    # is already passed separately below.
+    previous_messages = messages[:-1]
+
+    history = "\n".join(
+        f"{message.type}: {message.content}"
+        for message in previous_messages
+    )
+
+    rewrite_prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                """
+You rewrite e-commerce customer questions for document retrieval.
+
+Use the conversation history only to resolve references in the
+latest question, such as:
+
+- it
+- they
+- that product
+- the first one
+- the second one
+- the third one
+- the laptop you recommended
+- that policy
+
+Create a standalone search query containing the relevant product,
+product name, or topic from the conversation history.
+
+Do not answer the customer's question.
+Do not invent information.
+Do not add information that is not present in the conversation.
+
+If the latest question is already standalone and understandable
+without the conversation history, return it unchanged.
+
+Return ONLY the rewritten search query.
+""".strip()
+            ),
+            (
+                "human",
+                """
+Conversation history:
+{history}
+
+Latest question:
+{question}
+
+Standalone retrieval query:
+""".strip()
+            )
+        ]
+    )
+
+    chain = rewrite_prompt | llm
+
+    response = chain.invoke(
+        {
+            "history": history,
+            "question": question
+        }
+    )
+
+    retrieval_query = response.content.strip()
+
+    print(f"ORIGINAL QUERY: {question}")
+    print(f"RETRIEVAL QUERY: {retrieval_query}")
+
+    return {
+        "retrieval_query": retrieval_query
     }
