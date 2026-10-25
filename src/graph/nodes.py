@@ -9,30 +9,68 @@ from langchain_core.prompts import ChatPromptTemplate
 
 def router_node(state: ChatbotState):
     """
-    Decide whether the user's message is conversational
-    or should go through the RAG pipeline.
+    Use the local LLM to classify the user's intent.
+
+    Routes:
+    - conversation
+    - rag
     """
 
-    question = state["question"].strip().lower()
+    question = state["question"]
 
-    conversational_messages = {
-        "hi",
-        "hello",
-        "hey",
-        "hi there",
-        "hello there",
-        "good morning",
-        "good afternoon",
-        "good evening",
-        "thanks",
-        "thank you"
-    }
+    llm = get_llm()
 
-    if question in conversational_messages:
-        route = "conversation"
-    else:
+    router_prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                """
+You are the intent router for an e-commerce chatbot.
+
+Classify the user's message into exactly ONE of these routes:
+
+conversation:
+Use for greetings, thanks, casual conversation, or messages
+that do not require product or company-policy information.
+
+rag:
+Use for questions about products, product specifications,
+prices, availability, recommendations, returns, refunds,
+delivery, cancellation, warranty, payment, or company policies.
+
+Important:
+If the message contains both a greeting and a product or
+policy question, classify it as rag.
+
+Return ONLY one word:
+conversation
+or
+rag
+""".strip()
+            ),
+            (
+                "human",
+                "{question}"
+            )
+        ]
+    )
+
+    chain = router_prompt | llm
+
+    response = chain.invoke(
+        {
+            "question": question
+        }
+    )
+
+    route = response.content.strip().lower()
+
+    # Safe fallback
+    if route not in {"conversation", "rag"}:
         route = "rag"
+
     print(f"ROUTE SELECTED: {route}")
+
     return {
         "route": route
     }
@@ -45,14 +83,27 @@ def conversation_node(state: ChatbotState):
 
     question = state["question"].strip().lower()
 
-    if question in {"hi", "hello", "hey", "hi there", "hello there"}:
-        answer = "Hello! How can I help you with our products or policies today?"
+    if "thank" in question or "thanks" in question:
+        answer = (
+            "You're welcome! Let me know if you have any other "
+            "product or policy questions."
+        )
 
-    elif question in {"good morning", "good afternoon", "good evening"}:
-        answer = "Hello! How can I help you with our products or policies today?"
-
-    elif question in {"thanks", "thank you"}:
-        answer = "You're welcome! Let me know if you have any other product or policy questions."
+    elif any(
+        greeting in question
+        for greeting in [
+            "hi",
+            "hello",
+            "hey",
+            "good morning",
+            "good afternoon",
+            "good evening"
+        ]
+    ):
+        answer = (
+            "Hello! How can I help you with our products "
+            "or policies today?"
+        )
 
     else:
         answer = "Hello! How can I help you today?"
