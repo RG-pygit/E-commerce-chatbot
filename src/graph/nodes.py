@@ -7,6 +7,60 @@ from src.rag.generator import (
 
 from langchain_core.prompts import ChatPromptTemplate
 
+def router_node(state: ChatbotState):
+    """
+    Decide whether the user's message is conversational
+    or should go through the RAG pipeline.
+    """
+
+    question = state["question"].strip().lower()
+
+    conversational_messages = {
+        "hi",
+        "hello",
+        "hey",
+        "hi there",
+        "hello there",
+        "good morning",
+        "good afternoon",
+        "good evening",
+        "thanks",
+        "thank you"
+    }
+
+    if question in conversational_messages:
+        route = "conversation"
+    else:
+        route = "rag"
+    print(f"ROUTE SELECTED: {route}")
+    return {
+        "route": route
+    }
+
+def conversation_node(state: ChatbotState):
+    """
+    Handle simple conversational messages without
+    searching the vector database.
+    """
+
+    question = state["question"].strip().lower()
+
+    if question in {"hi", "hello", "hey", "hi there", "hello there"}:
+        answer = "Hello! How can I help you with our products or policies today?"
+
+    elif question in {"good morning", "good afternoon", "good evening"}:
+        answer = "Hello! How can I help you with our products or policies today?"
+
+    elif question in {"thanks", "thank you"}:
+        answer = "You're welcome! Let me know if you have any other product or policy questions."
+
+    else:
+        answer = "Hello! How can I help you today?"
+
+    return {
+        "answer": answer
+    }
+
 
 def retrieve_node(state: ChatbotState):
     """
@@ -102,14 +156,6 @@ Answer the customer's specific question using only the retrieved context.
     context=context
     )
 
-    print("\n" + "=" * 60)
-    print("FINAL PROMPT SENT TO MODEL")
-    print("=" * 60)
-
-    for message in messages:
-        print(f"\n{message.type.upper()}:")
-        print(message.content)
-    #testing end###############
     response = chain.invoke(
         {
             "question": question,

@@ -8,6 +8,7 @@ class ChatbotState(TypedDict):
     """
 
     question: str
+    route: str
     documents: list[Document]
     answer: str
 

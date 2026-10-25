@@ -1,7 +1,15 @@
 from langgraph.graph import StateGraph, START, END
 
 from src.graph.state import ChatbotState
-from src.graph.nodes import retrieve_node, generate_node
+from src.graph.nodes import (router_node, conversation_node,retrieve_node, generate_node)
+
+def decide_route(state: ChatbotState):
+    """
+    Decide which branch LangGraph should follow
+    after the router node.
+    """
+
+    return state["route"]
 
 
 def build_graph():
@@ -10,13 +18,32 @@ def build_graph():
     builder = StateGraph(ChatbotState)
 
     # Add nodes
+    builder.add_node("router", router_node)
+    builder.add_node("conversation", conversation_node)
     builder.add_node("retrieve", retrieve_node)
     builder.add_node("generate", generate_node)
 
     # Connect nodes
-    builder.add_edge(START, "retrieve")
+    # Start with router
+    builder.add_edge(START, "router")
+
+    # Conditional routing
+    builder.add_conditional_edges(
+            "router",
+            decide_route,
+            {
+                "conversation": "conversation",
+                "rag": "retrieve"
+            }
+        )
+
+    # Conversation path
+    builder.add_edge("conversation", END)
+
+    # RAG path
     builder.add_edge("retrieve", "generate")
     builder.add_edge("generate", END)
+    
 
     # Compile graph
     graph = builder.compile()
@@ -31,10 +58,11 @@ if __name__ == "__main__":
     question = input("\nAsk a product or policy question: ")
 
     initial_state = {
-        "question": question,
-        "documents": [],
-        "answer": ""
-    }
+    "question": question,
+    "route": "",
+    "documents": [],
+    "answer": ""
+}
 
     result = graph.invoke(initial_state)
 
