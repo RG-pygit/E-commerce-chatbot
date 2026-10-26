@@ -122,265 +122,265 @@ def get_numeric_field(document, field_name):
 # ------------------------------------------------------------------
 
 
-# def test_greeting_routes_to_conversation():
-#     graph = build_graph()
-#     config = create_config()
+def test_greeting_routes_to_conversation():
+    graph = build_graph()
+    config = create_config()
 
-#     result = invoke_graph(
-#         graph=graph,
-#         question="Hi",
-#         config=config
-#     )
+    result = invoke_graph(
+        graph=graph,
+        question="Hi",
+        config=config
+    )
 
-#     assert result["route"] == "conversation"
+    assert result["route"] == "conversation"
 
-#     assert result["answer"]
+    assert result["answer"]
 
-#     # Greeting route should not retrieve documents
-#     assert result.get("documents", []) == []
+    # Greeting route should not retrieve documents
+    assert result.get("documents", []) == []
 
 
-# def test_mixed_greeting_product_query_routes_to_rag():
-#     graph = build_graph()
-#     config = create_config()
+def test_mixed_greeting_product_query_routes_to_rag():
+    graph = build_graph()
+    config = create_config()
 
-#     result = invoke_graph(
-#         graph=graph,
-#         question=(
-#             "Hi, can you recommend a laptop "
-#             "with good battery life?"
-#         ),
-#         config=config
-#     )
+    result = invoke_graph(
+        graph=graph,
+        question=(
+            "Hi, can you recommend a laptop "
+            "with good battery life?"
+        ),
+        config=config
+    )
 
-#     assert result["route"] == "rag"
+    assert result["route"] == "rag"
 
-#     assert "product" in get_source_types(result)
+    assert "product" in get_source_types(result)
 
-#     assert len(result.get("documents", [])) > 0
+    assert len(result.get("documents", [])) > 0
 
 
-# def test_product_query_retrieves_product_documents():
-#     graph = build_graph()
-#     config = create_config()
+def test_product_query_retrieves_product_documents():
+    graph = build_graph()
+    config = create_config()
 
-#     result = invoke_graph(
-#         graph=graph,
-#         question="Which laptop should I buy?",
-#         config=config
-#     )
+    result = invoke_graph(
+        graph=graph,
+        question="Which laptop should I buy?",
+        config=config
+    )
 
-#     assert result["route"] == "rag"
+    assert result["route"] == "rag"
 
-#     assert "product" in get_source_types(result)
+    assert "product" in get_source_types(result)
 
-#     product_names = get_product_names(result)
+    product_names = get_product_names(result)
 
-#     assert len(product_names) > 0
+    assert len(product_names) > 0
 
-#     assert all(
-#         "Laptop" in product_name
-#         for product_name in product_names
-#     )
+    assert all(
+        "Laptop" in product_name
+        for product_name in product_names
+    )
 
 
-# def test_delivery_policy_is_retrieved():
-#     graph = build_graph()
-#     config = create_config()
+def test_delivery_policy_is_retrieved():
+    graph = build_graph()
+    config = create_config()
 
-#     result = invoke_graph(
-#         graph=graph,
-#         question="How long does delivery take?",
-#         config=config
-#     )
+    result = invoke_graph(
+        graph=graph,
+        question="How long does delivery take?",
+        config=config
+    )
 
-#     assert result["route"] == "rag"
+    assert result["route"] == "rag"
 
-#     assert "policy" in get_source_types(result)
+    assert "policy" in get_source_types(result)
 
-#     assert "Delivery Policy" in get_policy_types(result)
+    assert "Delivery Policy" in get_policy_types(result)
 
 
-# def test_cancellation_policy_is_retrieved():
-#     graph = build_graph()
-#     config = create_config()
+def test_cancellation_policy_is_retrieved():
+    graph = build_graph()
+    config = create_config()
 
-#     result = invoke_graph(
-#         graph=graph,
-#         question=(
-#             "Can I cancel an order after it has shipped?"
-#         ),
-#         config=config
-#     )
+    result = invoke_graph(
+        graph=graph,
+        question=(
+            "Can I cancel an order after it has shipped?"
+        ),
+        config=config
+    )
 
-#     assert result["route"] == "rag"
+    assert result["route"] == "rag"
 
-#     assert "Cancellation Policy" in get_policy_types(result)
+    assert "Cancellation Policy" in get_policy_types(result)
 
 
-# def test_return_policy_is_retrieved():
-#     graph = build_graph()
-#     config = create_config()
+def test_return_policy_is_retrieved():
+    graph = build_graph()
+    config = create_config()
 
-#     result = invoke_graph(
-#         graph=graph,
-#         question=(
-#             "Can I return an eligible product after 20 days?"
-#         ),
-#         config=config
-#     )
+    result = invoke_graph(
+        graph=graph,
+        question=(
+            "Can I return an eligible product after 20 days?"
+        ),
+        config=config
+    )
 
-#     assert result["route"] == "rag"
+    assert result["route"] == "rag"
 
-#     assert "Return Policy" in get_policy_types(result)
+    assert "Return Policy" in get_policy_types(result)
 
 
-# # ------------------------------------------------------------------
-# # MULTI-TURN MEMORY TESTS
-# # ------------------------------------------------------------------
+# ------------------------------------------------------------------
+# MULTI-TURN MEMORY TESTS
+# ------------------------------------------------------------------
 
 
-# def test_messages_are_saved_between_turns():
-#     graph = build_graph()
-#     config = create_config()
+def test_messages_are_saved_between_turns():
+    graph = build_graph()
+    config = create_config()
 
-#     first_result = invoke_graph(
-#         graph=graph,
-#         question="Hi",
-#         config=config
-#     )
+    first_result = invoke_graph(
+        graph=graph,
+        question="Hi",
+        config=config
+    )
 
-#     assert len(first_result["messages"]) == 2
+    assert len(first_result["messages"]) == 2
 
-#     second_result = invoke_graph(
-#         graph=graph,
-#         question="Thank you for your help",
-#         config=config
-#     )
+    second_result = invoke_graph(
+        graph=graph,
+        question="Thank you for your help",
+        config=config
+    )
 
-#     # Two turns:
-#     # Human + AI + Human + AI
-#     assert len(second_result["messages"]) == 4
+    # Two turns:
+    # Human + AI + Human + AI
+    assert len(second_result["messages"]) == 4
 
-#     message_types = [
-#         type(message).__name__
-#         for message in second_result["messages"]
-#     ]
+    message_types = [
+        type(message).__name__
+        for message in second_result["messages"]
+    ]
 
-#     assert message_types == [
-#         "HumanMessage",
-#         "AIMessage",
-#         "HumanMessage",
-#         "AIMessage"
-#     ]
+    assert message_types == [
+        "HumanMessage",
+        "AIMessage",
+        "HumanMessage",
+        "AIMessage"
+    ]
 
 
-# def test_smartwatch_follow_up_uses_exact_product():
-#     graph = build_graph()
-#     config = create_config()
+def test_smartwatch_follow_up_uses_exact_product():
+    graph = build_graph()
+    config = create_config()
 
-#     first_result = invoke_graph(
-#         graph=graph,
-#         question="Recommend a smartwatch.",
-#         config=config
-#     )
+    first_result = invoke_graph(
+        graph=graph,
+        question="Recommend a smartwatch.",
+        config=config
+    )
 
-#     assert first_result["route"] == "rag"
-#     assert "product" in get_source_types(first_result)
+    assert first_result["route"] == "rag"
+    assert "product" in get_source_types(first_result)
 
-#     second_result = invoke_graph(
-#         graph=graph,
-#         question=(
-#             "Tell me more about the smartwatch "
-#             "you recommended."
-#         ),
-#         config=config
-#     )
+    second_result = invoke_graph(
+        graph=graph,
+        question=(
+            "Tell me more about the smartwatch "
+            "you recommended."
+        ),
+        config=config
+    )
 
-#     assert second_result["route"] == "rag"
+    assert second_result["route"] == "rag"
 
-#     product_names = get_product_names(second_result)
+    product_names = get_product_names(second_result)
 
-#     # Exact-product retrieval should return one product
-#     assert len(product_names) == 1
+    # Exact-product retrieval should return one product
+    assert len(product_names) == 1
 
-#     exact_product = product_names[0]
+    exact_product = product_names[0]
 
-#     assert "Smartwatch" in exact_product
+    assert "Smartwatch" in exact_product
 
-#     # The rewritten query should identify the same product
-#     assert exact_product in second_result["retrieval_query"]
+    # The rewritten query should identify the same product
+    assert exact_product in second_result["retrieval_query"]
 
 
-# def test_smartwatch_price_follow_up_uses_same_product():
-#     graph = build_graph()
-#     config = create_config()
+def test_smartwatch_price_follow_up_uses_same_product():
+    graph = build_graph()
+    config = create_config()
 
-#     invoke_graph(
-#         graph=graph,
-#         question="Recommend a smartwatch.",
-#         config=config
-#     )
+    invoke_graph(
+        graph=graph,
+        question="Recommend a smartwatch.",
+        config=config
+    )
 
-#     details_result = invoke_graph(
-#         graph=graph,
-#         question=(
-#             "Tell me more about the smartwatch "
-#             "you recommended."
-#         ),
-#         config=config
-#     )
+    details_result = invoke_graph(
+        graph=graph,
+        question=(
+            "Tell me more about the smartwatch "
+            "you recommended."
+        ),
+        config=config
+    )
 
-#     recommended_products = get_product_names(details_result)
+    recommended_products = get_product_names(details_result)
 
-#     assert len(recommended_products) == 1
+    assert len(recommended_products) == 1
 
-#     recommended_product = recommended_products[0]
+    recommended_product = recommended_products[0]
 
-#     price_result = invoke_graph(
-#         graph=graph,
-#         question="How much does that smartwatch cost?",
-#         config=config
-#     )
+    price_result = invoke_graph(
+        graph=graph,
+        question="How much does that smartwatch cost?",
+        config=config
+    )
 
-#     price_products = get_product_names(price_result)
+    price_products = get_product_names(price_result)
 
-#     assert price_products == [recommended_product]
+    assert price_products == [recommended_product]
 
-#     assert recommended_product in price_result["retrieval_query"]
+    assert recommended_product in price_result["retrieval_query"]
 
 
-# def test_laptop_position_follow_up_uses_exact_product():
-#     graph = build_graph()
-#     config = create_config()
+def test_laptop_position_follow_up_uses_exact_product():
+    graph = build_graph()
+    config = create_config()
 
-#     first_result = invoke_graph(
-#         graph=graph,
-#         question="Which laptop should I buy?",
-#         config=config
-#     )
+    first_result = invoke_graph(
+        graph=graph,
+        question="Which laptop should I buy?",
+        config=config
+    )
 
-#     first_turn_products = get_product_names(first_result)
+    first_turn_products = get_product_names(first_result)
 
-#     assert len(first_turn_products) >= 3
+    assert len(first_turn_products) >= 3
 
-#     second_result = invoke_graph(
-#         graph=graph,
-#         question=(
-#             "How about the third laptop "
-#             "you recommended?"
-#         ),
-#         config=config
-#     )
+    second_result = invoke_graph(
+        graph=graph,
+        question=(
+            "How about the third laptop "
+            "you recommended?"
+        ),
+        config=config
+    )
 
-#     follow_up_products = get_product_names(second_result)
+    follow_up_products = get_product_names(second_result)
 
-#     # Exact retrieval should provide only one product document
-#     assert len(follow_up_products) == 1
+    # Exact retrieval should provide only one product document
+    assert len(follow_up_products) == 1
 
-#     exact_product = follow_up_products[0]
+    exact_product = follow_up_products[0]
 
-#     assert exact_product in second_result["retrieval_query"]
+    assert exact_product in second_result["retrieval_query"]
 
 
 
@@ -478,6 +478,16 @@ def test_laptop_price_comparison():
         config=config
     )
 
+    # Check products retrieved for the comparison question
+    comparison_products = get_product_names(
+    comparison_result
+    )
+
+    assert len(comparison_products) >= 2, (
+    f"Expected at least 2 products for comparison, "
+    f"but retrieved: {comparison_products}"
+    )   
+
     answer = comparison_result["answer"].lower()
 
     assert (
@@ -550,6 +560,15 @@ def test_laptop_ram_comparison():
         config=config
     )
 
+    comparison_products = get_product_names(
+    comparison_result
+)
+
+    assert len(comparison_products) >= 2, (
+    f"Expected multiple products for comparison, "
+    f"but retrieved: {comparison_products}"
+    )
+    
     answer = comparison_result["answer"].lower()
 
     assert any(
