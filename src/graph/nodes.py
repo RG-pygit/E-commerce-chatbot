@@ -1,5 +1,5 @@
 from src.graph.state import ChatbotState
-from src.rag.retriever import search
+from src.rag.retriever import (search, search_exact_product,find_exact_product_name)
 from src.rag.generator import (
     get_llm,
     format_context
@@ -119,15 +119,37 @@ def conversation_node(state: ChatbotState):
 
 def retrieve_node(state: ChatbotState):
     """
-    Retrieve relevant documents from Chroma.
+    Use exact metadata retrieval when the rewritten query
+    contains a known catalog product name.
+
+    Otherwise, use semantic vector search.
     """
 
     retrieval_query = state["retrieval_query"]
 
-    documents = search(
-        retrieval_query,
-        k=3
+    exact_product_name = find_exact_product_name(
+        retrieval_query
     )
+
+    if exact_product_name:
+
+        documents = search_exact_product(
+            exact_product_name
+        )
+
+        print(
+            "RETRIEVAL MODE: exact product -> "
+            f"{exact_product_name}"
+        )
+
+    else:
+
+        documents = search(
+            retrieval_query,
+            k=3
+        )
+
+        print("RETRIEVAL MODE: semantic search")
 
     return {
         "documents": documents
