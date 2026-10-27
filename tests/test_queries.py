@@ -540,6 +540,14 @@ def test_laptop_ram_comparison():
                 }
             )
 
+        print("\nProducts from first retrieval:")
+
+    for product in products:
+        print(
+        product["product_name"],
+        product["ram"]
+    )
+
     assert len(products) >= 2
 
     maximum_ram = max(
@@ -554,6 +562,9 @@ def test_laptop_ram_comparison():
         if product["ram"] == maximum_ram
     }
 
+    print("\nExpected max RAM products:")
+    print(expected_products)
+
     comparison_result = invoke_graph(
         graph=graph,
         question="Which of those has the most RAM?",
@@ -562,7 +573,10 @@ def test_laptop_ram_comparison():
 
     comparison_products = get_product_names(
     comparison_result
-)
+) 
+    print("\nProducts retrieved in comparison turn:")
+    print(get_product_names(
+    comparison_result))
 
     assert len(comparison_products) >= 2, (
     f"Expected multiple products for comparison, "
@@ -570,6 +584,9 @@ def test_laptop_ram_comparison():
     )
     
     answer = comparison_result["answer"].lower()
+
+    print("\nActual answer:")
+    print(comparison_result["answer"])
 
     assert any(
         product.lower() in answer

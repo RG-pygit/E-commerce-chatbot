@@ -1,5 +1,10 @@
 from src.graph.state import ChatbotState
-from src.rag.retriever import (search, search_exact_product,find_exact_product_name)
+from src.rag.retriever import (
+    search,
+    find_exact_product_names,
+    search_exact_product,
+    search_exact_products
+)
 from src.rag.generator import (
     get_llm,
     format_context
@@ -118,28 +123,35 @@ def conversation_node(state: ChatbotState):
 
 
 def retrieve_node(state: ChatbotState):
-    """
-    Use exact metadata retrieval when the rewritten query
-    contains a known catalog product name.
-
-    Otherwise, use semantic vector search.
-    """
 
     retrieval_query = state["retrieval_query"]
 
-    exact_product_name = find_exact_product_name(
+    exact_product_names = find_exact_product_names(
         retrieval_query
     )
 
-    if exact_product_name:
+    if len(exact_product_names) > 1:
+
+        documents = search_exact_products(
+            exact_product_names
+        )
+
+        print(
+            "RETRIEVAL MODE: multiple exact products -> "
+            f"{exact_product_names}"
+        )
+
+    elif len(exact_product_names) == 1:
+
+        product_name = exact_product_names[0]
 
         documents = search_exact_product(
-            exact_product_name
+            product_name
         )
 
         print(
             "RETRIEVAL MODE: exact product -> "
-            f"{exact_product_name}"
+            f"{product_name}"
         )
 
     else:
@@ -200,7 +212,32 @@ Follow these rules:
 
 11. If the retrieved context contains information about the product or topic, but does NOT contain the specific information requested by the customer, do not substitute another product attribute or unrelated fact.
 
-12. If the specific information needed to answer the question is not available in the retrieved context, respond:
+12. If the customer refers to a specific product using an incomplete
+or ambiguous product name, and you cannot reliably determine which
+exact product they mean, do not guess, substitute a similar product,
+or claim that the product does not exist.
+
+In that case, ask:
+
+"Please provide the full product name."
+
+If multiple specific products are ambiguous, ask:
+
+"Please provide the full product names."
+
+Do NOT ask for full product names when the customer is making a
+general request such as asking for product recommendations,
+browsing products, or asking which product they should buy.
+For general requests, answer using the relevant products in the
+retrieved context.
+
+13. If the specific information needed to answer the question is
+not available in the retrieved context, respond:
+
+"I don't have enough information in the available product and
+policy data."
+
+If the specific information needed to answer the question is not available in the retrieved context, respond:
 
 "I don't have enough information in the available product and policy data."
 
@@ -269,33 +306,68 @@ def rewrite_query_node(state: ChatbotState):
     )
 
     rewrite_prompt = ChatPromptTemplate.from_messages(
-        [
-            (
-                "system",
-                """
-You rewrite e-commerce customer questions for document retrieval.
+    [
+        (
+            "system",
+            """
+You rewrite e-commerce customer questions into standalone
+queries for document retrieval.
 
-Use the conversation history only to resolve references in the
-latest question, such as:
+Your ONLY job is to resolve references using the conversation
+history.
 
-- it
-- they
-- that product
-- the first one
-- the second one
-- the third one
-- the laptop you recommended
-- that policy
+Rules:
 
-Create a standalone search query containing the relevant product,
-product name, or topic from the conversation history.
+1. Do NOT answer the customer's question.
 
-Do not answer the customer's question.
-Do not invent information.
-Do not add information that is not present in the conversation.
+2. Do NOT decide which product is cheapest, most expensive,
+   has the most RAM, most storage, longest battery life,
+   longest warranty, or is otherwise the winner of a comparison.
 
-If the latest question is already standalone and understandable
-without the conversation history, return it unchanged.
+3. For a question referring to ONE product, replace the
+   reference with the exact product name from the conversation.
+
+Example:
+
+Conversation:
+Assistant recommended FitPulse Smartwatch 194.
+
+Question:
+How much does that smartwatch cost?
+
+Output:
+FitPulse Smartwatch 194 price
+
+
+4. For a question referring to MULTIPLE products using words
+   such as "those", "these", "them", "the options", or similar
+   references, include ALL relevant product names from the
+   conversation history.
+
+Example:
+
+Conversation:
+Assistant discussed Product A, Product B, and Product C.
+
+Question:
+Which of those has the most RAM?
+
+Output:
+Compare RAM of Product A, Product B, and Product C
+
+
+5. Never replace a multi-product comparison with only one
+   product name.
+
+6. For positional references such as "first", "second", or
+   "third", resolve the positions using the order in which
+   products were presented in the conversation.
+
+7. Do not invent product names or information.
+
+8. If the latest question is already standalone and does not
+   depend on conversation history, return a concise standalone
+   retrieval query.
 
 Return ONLY the rewritten search query.
 """.strip()

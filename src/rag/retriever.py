@@ -33,6 +33,24 @@ def search(query, k=3):
 
     return results
 
+#multi-product retrieval function
+def search_exact_products(product_names):
+    """
+    Retrieve multiple products using exact metadata filters.
+    """
+
+    documents = []
+
+    for product_name in product_names:
+
+        product_documents = search_exact_product(
+            product_name
+        )
+
+        documents.extend(product_documents)
+
+    return documents
+
 # this func is to search for exact product and not top 3 
 def search_exact_product(product_name):
 
@@ -48,13 +66,11 @@ def search_exact_product(product_name):
 
     return results
 
-def find_exact_product_name(query):
+def find_exact_product_names(query):
     """
-    Check whether the query contains a product name
-    stored in the Chroma catalog metadata.
+    Find all catalog product names mentioned in the query.
 
-    Returns the exact stored product name when found.
-    Otherwise returns None.
+    Returns a list of exact product names found in Chroma metadata.
     """
 
     vector_store = load_vector_store()
@@ -77,19 +93,21 @@ def find_exact_product_name(query):
         if product_name:
             product_names.add(product_name)
 
-    # Check longer names first
+    # Check longer product names first
     sorted_product_names = sorted(
         product_names,
         key=len,
         reverse=True
     )
 
+    matches = []
+
     for product_name in sorted_product_names:
 
         if product_name.lower() in query_lower:
-            return product_name
+            matches.append(product_name)
 
-    return None
+    return matches
 
 ###### main  ######
 if __name__ == "__main__":
