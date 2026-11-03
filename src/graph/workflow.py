@@ -37,9 +37,10 @@ def build_graph():
     decide_route,
     {
         "conversation": "conversation",
-        "rag": "rewrite_query"
+        "product": "rewrite_query",
+        "policy": "rewrite_query"
     }
-        )
+)
 
     # Conversation path
     builder.add_edge("conversation", END)
@@ -112,7 +113,7 @@ if __name__ == "__main__":
         print("SOURCES")
         print("=" * 60)
 
-        for document in result["documents"]:
+        for document in result.get("documents", []):
 
             source = document.metadata.get(
             "source",

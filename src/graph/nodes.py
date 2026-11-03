@@ -3,7 +3,8 @@ from src.rag.retriever import (
     search,
     find_exact_product_names,
     search_exact_product,
-    search_exact_products
+    search_exact_products,
+    search_by_source_type
 )
 from src.rag.generator import (
     get_llm,
@@ -19,7 +20,8 @@ def router_node(state: ChatbotState):
 
     Routes:
     - conversation
-    - rag
+    - product
+    - policy
     """
 
     question = state["question"]
@@ -39,19 +41,64 @@ conversation:
 Use for greetings, thanks, casual conversation, or messages
 that do not require product or company-policy information.
 
-rag:
-Use for questions about products, product specifications,
-prices, availability, recommendations, returns, refunds,
-delivery, cancellation, warranty, payment, or company policies.
+product:
+Use when the customer is asking about products themselves.
+
+This includes:
+- product recommendations
+- product specifications
+- prices
+- availability
+- RAM
+- storage
+- battery
+- warranty of a specific product
+- comparing products
+- follow-up questions about previously discussed products
+
+Do NOT classify delivery, shipping, returns, refunds,
+order cancellation, payment rules, or other company policies
+as product.
+
+policy:
+Use when the customer is asking about company rules, processes,
+or policies that apply to purchases or orders.
+
+This includes:
+- delivery or shipping time
+- delivery or shipping rules
+- returns
+- refunds
+- cancellation
+- payment policies
+- warranty policies
+- other company rules or policies
+
+Examples:
+
+"How long does delivery take?" -> policy
+
+"When will my order be delivered?" -> policy
+
+"Can I return a product after 20 days?" -> policy
+
+"Can I cancel an order after it has shipped?" -> policy
+
+"What is the refund policy?" -> policy
 
 Important:
-If the message contains both a greeting and a product or
-policy question, classify it as rag.
+
+If a message contains a greeting plus a product question,
+classify it as product.
+
+If a message contains a greeting plus a policy question,
+classify it as policy.
 
 Return ONLY one word:
+
 conversation
-or
-rag
+product
+policy
 """.strip()
             ),
             (
@@ -72,8 +119,12 @@ rag
     route = response.content.strip().lower()
 
     # Safe fallback
-    if route not in {"conversation", "rag"}:
-        route = "rag"
+    if route not in {
+        "conversation",
+        "product",
+        "policy"
+    }:
+        route = "product"
 
     print(f"ROUTE SELECTED: {route}")
 
@@ -125,44 +176,69 @@ def conversation_node(state: ChatbotState):
 def retrieve_node(state: ChatbotState):
 
     retrieval_query = state["retrieval_query"]
+    route = state["route"]
 
-    exact_product_names = find_exact_product_names(
-        retrieval_query
-    )
+    # PRODUCT ROUTE
+    if route == "product":
 
-    if len(exact_product_names) > 1:
+        exact_product_names = find_exact_product_names(
+            retrieval_query
+        )
 
-        documents = search_exact_products(
-            exact_product_names
+        if len(exact_product_names) > 1:
+
+            documents = search_exact_products(
+                exact_product_names
+            )
+
+            print(
+                "RETRIEVAL MODE: multiple exact products -> "
+                f"{exact_product_names}"
+            )
+
+        elif len(exact_product_names) == 1:
+
+            product_name = exact_product_names[0]
+
+            documents = search_exact_product(
+                product_name
+            )
+
+            print(
+                "RETRIEVAL MODE: exact product -> "
+                f"{product_name}"
+            )
+
+        else:
+
+            documents = search_by_source_type(
+                query=retrieval_query,
+                source_type="product",
+                k=3
+            )
+
+            print(
+                "RETRIEVAL MODE: product semantic search"
+            )
+
+    # POLICY ROUTE
+    elif route == "policy":
+
+        documents = search_by_source_type(
+            query=retrieval_query,
+            source_type="policy",
+            k=3
         )
 
         print(
-            "RETRIEVAL MODE: multiple exact products -> "
-            f"{exact_product_names}"
-        )
-
-    elif len(exact_product_names) == 1:
-
-        product_name = exact_product_names[0]
-
-        documents = search_exact_product(
-            product_name
-        )
-
-        print(
-            "RETRIEVAL MODE: exact product -> "
-            f"{product_name}"
+            "RETRIEVAL MODE: policy semantic search"
         )
 
     else:
 
-        documents = search(
-            retrieval_query,
-            k=3
-        )
+        documents = []
 
-        print("RETRIEVAL MODE: semantic search")
-
+    # Active products should only contain product results
     active_product_names = [
         document.metadata.get("product_name")
         for document in documents
@@ -170,10 +246,10 @@ def retrieve_node(state: ChatbotState):
     ]
 
     print(
-    "ACTIVE PRODUCTS:",
-    active_product_names
+        "ACTIVE PRODUCTS:",
+        active_product_names
     )
-    
+
     return {
         "documents": documents,
         "active_product_names": active_product_names
@@ -469,3 +545,30 @@ Standalone retrieval query:
     return {
         "retrieval_query": retrieval_query
     }
+
+
+if __name__ == "__main__":
+
+    test_questions = [
+        "Hi",
+        "Thank you for your help",
+        "Which laptop should I buy?",
+        "Recommend a smartwatch",
+        "Which of those is the cheapest?",
+        "How long does delivery take?",
+        "Can I return a product after 20 days?",
+        "Can I cancel an order after it has shipped?",
+        "What is the refund policy?"
+    ]
+
+    for question in test_questions:
+
+        state = {
+            "question": question
+        }
+
+        result = router_node(state)
+
+        print(
+            f"{question} -> {result['route']}"
+        )

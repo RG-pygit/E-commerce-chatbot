@@ -153,7 +153,7 @@ def test_mixed_greeting_product_query_routes_to_rag():
         config=config
     )
 
-    assert result["route"] == "rag"
+    assert result["route"] == "product"
 
     assert "product" in get_source_types(result)
 
@@ -170,7 +170,7 @@ def test_product_query_retrieves_product_documents():
         config=config
     )
 
-    assert result["route"] == "rag"
+    assert result["route"] == "product"
 
     assert "product" in get_source_types(result)
 
@@ -194,7 +194,7 @@ def test_delivery_policy_is_retrieved():
         config=config
     )
 
-    assert result["route"] == "rag"
+    assert result["route"] == "policy"
 
     assert "policy" in get_source_types(result)
 
@@ -213,7 +213,7 @@ def test_cancellation_policy_is_retrieved():
         config=config
     )
 
-    assert result["route"] == "rag"
+    assert result["route"] == "policy"
 
     assert "Cancellation Policy" in get_policy_types(result)
 
@@ -230,7 +230,7 @@ def test_return_policy_is_retrieved():
         config=config
     )
 
-    assert result["route"] == "rag"
+    assert result["route"] == "policy"
 
     assert "Return Policy" in get_policy_types(result)
 
@@ -285,7 +285,7 @@ def test_smartwatch_follow_up_uses_exact_product():
         config=config
     )
 
-    assert first_result["route"] == "rag"
+    assert first_result["route"] == "product"
     assert "product" in get_source_types(first_result)
 
     second_result = invoke_graph(
@@ -297,7 +297,7 @@ def test_smartwatch_follow_up_uses_exact_product():
         config=config
     )
 
-    assert second_result["route"] == "rag"
+    assert second_result["route"] == "product"
 
     product_names = get_product_names(second_result)
 
@@ -407,7 +407,7 @@ def test_compare_first_and_third_laptop_options():
         config=config
     )
 
-    assert comparison_result["route"] == "rag"
+    assert comparison_result["route"] == "product"
     assert comparison_result["answer"]
 
     print("Products retrieved in first turn:")

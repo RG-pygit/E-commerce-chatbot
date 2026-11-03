@@ -109,21 +109,33 @@ def find_exact_product_names(query):
 
     return matches
 
+def search_by_source_type(query, source_type, k=3):
+
+    vector_store = load_vector_store()
+
+    results = vector_store.similarity_search(
+        query,
+        k=k,
+        filter={
+            "source_type": source_type
+        }
+    )
+
+    return results
+
+
+
 ###### main  ######
 if __name__ == "__main__":
 
-    test_queries = [
-        "Tell me about NovaTech Laptop 151",
-        "What about FitPulse Smartwatch 194?",
-        "Show details for AsterMobile Smartphone 182",
-        "Recommend a smartwatch"
-    ]
+    results = search_by_source_type(
+    query="laptop recommendations",
+    source_type="product",
+    k=3
+)
 
-    for query in test_queries:
+    for document in results:
+        print(document.metadata)
 
-        product_name = find_exact_product_name(query)
-
-        print("\nQuery:", query)
-        print("Exact product:", product_name)
 
 
