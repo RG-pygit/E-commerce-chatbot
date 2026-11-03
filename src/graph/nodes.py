@@ -163,8 +163,20 @@ def retrieve_node(state: ChatbotState):
 
         print("RETRIEVAL MODE: semantic search")
 
+    active_product_names = [
+        document.metadata.get("product_name")
+        for document in documents
+        if document.metadata.get("product_name")
+    ]
+
+    print(
+    "ACTIVE PRODUCTS:",
+    active_product_names
+    )
+    
     return {
-        "documents": documents
+        "documents": documents,
+        "active_product_names": active_product_names
     }
 
 
@@ -231,15 +243,21 @@ browsing products, or asking which product they should buy.
 For general requests, answer using the relevant products in the
 retrieved context.
 
-13. If the specific information needed to answer the question is
+13. If a requested attribute has the value "N/A", "Unknown",
+"Not available", or an empty value, treat that attribute as
+unavailable information.
+
+Do not interpret an unavailable value as meaning that the product
+has the feature, and do not infer or guess a value.
+
+If the requested attribute is unavailable for all relevant products,
+do not select a winner for the comparison.
+
+14. If the specific information needed to answer the question is
 not available in the retrieved context, respond:
 
 "I don't have enough information in the available product and
 policy data."
-
-If the specific information needed to answer the question is not available in the retrieved context, respond:
-
-"I don't have enough information in the available product and policy data."
 
 Give a direct, concise, customer-friendly answer.
 """.strip()
@@ -293,6 +311,16 @@ def rewrite_query_node(state: ChatbotState):
 
     question = state["question"]
     messages = state["messages"]
+
+    active_product_names = state.get(
+    "active_product_names",
+    []
+    )
+
+    active_products = "\n".join(
+    f"- {product_name}"
+    for product_name in active_product_names
+    )
 
     llm = get_llm()
 
@@ -369,6 +397,39 @@ Compare RAM of Product A, Product B, and Product C
    depend on conversation history, return a concise standalone
    retrieval query.
 
+9. RECENCY RULE:
+
+Use the MOST RECENTLY ACTIVE PRODUCTS only when the latest
+question depends on a reference to previously discussed products,
+such as "it", "that one", "those", "these", "them", "which one",
+"first", "second", or "third".
+
+Do NOT use the active products when the latest question is already
+a standalone request that clearly identifies a new product category,
+product type, policy topic, or product name.
+
+For example:
+
+Active products:
+FitPulse Smartwatch 154
+FitPulse Smartwatch 174
+FitPulse Smartwatch 194
+
+Question:
+Which laptop should I buy?
+
+Output:
+laptop recommendations
+
+The new question explicitly asks about laptops, so the previous
+smartwatches must not be used.
+
+If the question contains an ambiguous reference such as
+"Which of those is cheapest?", use the active products first.
+
+Only use older conversation history when the active products
+cannot resolve the reference.
+
 Return ONLY the rewritten search query.
 """.strip()
             ),
@@ -377,6 +438,9 @@ Return ONLY the rewritten search query.
                 """
 Conversation history:
 {history}
+
+Most recently active products:
+{active_products}
 
 Latest question:
 {question}
@@ -392,6 +456,7 @@ Standalone retrieval query:
     response = chain.invoke(
         {
             "history": history,
+            "active_products": active_products,
             "question": question
         }
     )

@@ -21,7 +21,7 @@ def load_products():
 
         # Metadata describing this document
         metadata = {
-            "source": "products.json",
+            "source": "products_json.json",
             "source_type": "product",
             "product_id": product.get("product_id"),
             "product_name": product.get("name"),

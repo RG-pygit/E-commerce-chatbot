@@ -96,15 +96,15 @@ if __name__ == "__main__":
         print("=" * 60)
         print(result["answer"])
 
-        print("\n" + "=" * 60)
-        print("MESSAGES STORED")
-        print("=" * 60)
+        # print("\n" + "=" * 60)
+        # print("MESSAGES STORED")
+        # print("=" * 60)
 
-        for message in result["messages"]:
-            print(
-                f"{type(message).__name__}: "
-                f"{message.content}"
-            )
+        # for message in result["messages"]:
+        #     print(
+        #         f"{type(message).__name__}: "
+        #         f"{message.content}"
+        #     )
 
     
 
