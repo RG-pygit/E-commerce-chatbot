@@ -1,7 +1,8 @@
 from langgraph.graph import StateGraph, START, END
 
 from src.graph.state import ChatbotState
-from src.graph.nodes import (router_node, conversation_node,rewrite_query_node,retrieve_node, generate_node)
+from src.graph.nodes import (router_node, conversation_node,rewrite_query_node,product_retrieve_node,
+policy_retrieve_node,product_generate_node, policy_generate_node,generate_node,product_agent_node)
 
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain_core.messages import HumanMessage
@@ -24,8 +25,12 @@ def build_graph():
     builder.add_node("router", router_node)
     builder.add_node("conversation", conversation_node)
     builder.add_node("rewrite_query",rewrite_query_node)
-    builder.add_node("retrieve", retrieve_node)
+    builder.add_node("product_retrieve",product_retrieve_node)
+    builder.add_node("policy_retrieve",policy_retrieve_node)
+    builder.add_node("product_generate",product_generate_node) 
+    builder.add_node("policy_generate",policy_generate_node)
     builder.add_node("generate", generate_node)
+    builder.add_node("product_agent",product_agent_node)
 
     # Connect nodes
     # Start with router
@@ -46,9 +51,18 @@ def build_graph():
     builder.add_edge("conversation", END)
 
     # RAG path
-    builder.add_edge("rewrite_query","retrieve")
-    builder.add_edge("retrieve", "generate")
-    builder.add_edge("generate", END)
+    builder.add_conditional_edges(
+    "rewrite_query",
+    decide_route,
+    {
+        "product": "product_agent",
+        "policy": "policy_retrieve"
+    }
+)
+    builder.add_edge("product_agent","product_generate")
+    builder.add_edge("policy_retrieve", "policy_generate")
+    builder.add_edge("product_generate", END)
+    builder.add_edge("policy_generate", END)
     
 
     # Compile graph

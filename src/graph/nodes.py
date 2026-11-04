@@ -13,6 +13,7 @@ from src.rag.generator import (
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import AIMessage
+from src.agents.product_agent import run_product_agent
 
 def router_node(state: ChatbotState):
     """
@@ -172,73 +173,22 @@ def conversation_node(state: ChatbotState):
     ]
     }
 
-
-def retrieve_node(state: ChatbotState):
+def product_agent_node(state: ChatbotState):
+    """
+    Use the Product Agent to choose and execute
+    the appropriate product retrieval tool.
+    """
 
     retrieval_query = state["retrieval_query"]
-    route = state["route"]
 
-    # PRODUCT ROUTE
-    if route == "product":
+    print(
+        f"PRODUCT AGENT INPUT: {retrieval_query}"
+    )
 
-        exact_product_names = find_exact_product_names(
-            retrieval_query
-        )
+    documents = run_product_agent(
+        retrieval_query
+    )
 
-        if len(exact_product_names) > 1:
-
-            documents = search_exact_products(
-                exact_product_names
-            )
-
-            print(
-                "RETRIEVAL MODE: multiple exact products -> "
-                f"{exact_product_names}"
-            )
-
-        elif len(exact_product_names) == 1:
-
-            product_name = exact_product_names[0]
-
-            documents = search_exact_product(
-                product_name
-            )
-
-            print(
-                "RETRIEVAL MODE: exact product -> "
-                f"{product_name}"
-            )
-
-        else:
-
-            documents = search_by_source_type(
-                query=retrieval_query,
-                source_type="product",
-                k=3
-            )
-
-            print(
-                "RETRIEVAL MODE: product semantic search"
-            )
-
-    # POLICY ROUTE
-    elif route == "policy":
-
-        documents = search_by_source_type(
-            query=retrieval_query,
-            source_type="policy",
-            k=3
-        )
-
-        print(
-            "RETRIEVAL MODE: policy semantic search"
-        )
-
-    else:
-
-        documents = []
-
-    # Active products should only contain product results
     active_product_names = [
         document.metadata.get("product_name")
         for document in documents
@@ -253,6 +203,81 @@ def retrieve_node(state: ChatbotState):
     return {
         "documents": documents,
         "active_product_names": active_product_names
+    }
+
+def product_retrieve_node(state: ChatbotState):
+
+    retrieval_query = state["retrieval_query"]
+
+    exact_product_names = find_exact_product_names(
+        retrieval_query
+    )
+
+    if len(exact_product_names) > 1:
+
+        documents = search_exact_products(
+            exact_product_names
+        )
+
+        print(
+            "RETRIEVAL MODE: multiple exact products -> "
+            f"{exact_product_names}"
+        )
+
+    elif len(exact_product_names) == 1:
+
+        product_name = exact_product_names[0]
+
+        documents = search_exact_product(
+            product_name
+        )
+
+        print(
+            "RETRIEVAL MODE: exact product -> "
+            f"{product_name}"
+        )
+
+    else:
+
+        documents = search_by_source_type(
+            query=retrieval_query,
+            source_type="product",
+            k=3
+        )
+
+        print("RETRIEVAL MODE: product semantic search")
+
+    active_product_names = [
+        document.metadata.get("product_name")
+        for document in documents
+        if document.metadata.get("product_name")
+    ]
+
+    print(
+        "ACTIVE PRODUCTS:",
+        active_product_names
+    )
+
+    return {
+        "documents": documents,
+        "active_product_names": active_product_names
+    }
+
+def policy_retrieve_node(state: ChatbotState):
+
+    retrieval_query = state["retrieval_query"]
+
+    documents = search_by_source_type(
+        query=retrieval_query,
+        source_type="policy",
+        k=3
+    )
+
+    print("RETRIEVAL MODE: policy semantic search")
+
+    return {
+        "documents": documents,
+        "active_product_names": []
     }
 
 
@@ -375,6 +400,215 @@ Answer the customer's specific question using only the retrieved context.
         "answer": response.content,
         "messages": [
         AIMessage(content=response.content)
+        ]
+    }
+
+def product_generate_node(state: ChatbotState):
+    """
+    Generate an answer using the documents
+    retrieved by the retrieve node.
+    """
+    print(">>> LANGGRAPH GENERATE NODE IS RUNNING <<<")
+    question = state["question"]
+    documents = state["documents"]
+
+    context = format_context(documents)
+
+    prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """
+You are an e-commerce product assistant.
+
+Answer the customer's question using ONLY the retrieved context.
+
+Follow these rules:
+
+1. Read the customer's question carefully and identify exactly what information is being requested.
+
+2. Read the retrieved context carefully and identify only the information relevant to that specific request.
+
+3. Use only facts explicitly provided in the retrieved context.
+
+4. Do not answer with unrelated information simply because it is available in the retrieved context.
+
+5. You may perform simple logical reasoning, comparisons, and calculations when they are directly supported by the retrieved context.
+
+6. When comparing values such as price, quantity, time, storage, RAM, battery life, ratings, or other numerical values, reason about them carefully before answering.
+
+7. Do not invent product specifications, availability, prices, policies, conditions, or other information.
+
+8. Do not use outside knowledge.
+
+9. If multiple retrieved items are relevant to the customer's request, present the relevant options clearly.
+
+10. Include important conditions, limitations, or exceptions from the retrieved context when they affect the answer.
+
+11. If the retrieved context contains information about the product or topic, but does NOT contain the specific information requested by the customer, do not substitute another product attribute or unrelated fact.
+
+12. If the customer refers to a specific product using an incomplete
+or ambiguous product name, and you cannot reliably determine which
+exact product they mean, do not guess, substitute a similar product,
+or claim that the product does not exist.
+
+In that case, ask:
+
+"Please provide the full product name."
+
+If multiple specific products are ambiguous, ask:
+
+"Please provide the full product names."
+
+Do NOT ask for full product names when the customer is making a
+general request such as asking for product recommendations,
+browsing products, or asking which product they should buy.
+For general requests, answer using the relevant products in the
+retrieved context.
+
+13. If a requested attribute has the value "N/A", "Unknown",
+"Not available", or an empty value, treat that attribute as
+unavailable information.
+
+Do not interpret an unavailable value as meaning that the product
+has the feature, and do not infer or guess a value.
+
+If the requested attribute is unavailable for all relevant products,
+do not select a winner for the comparison.
+
+14. If the specific information needed to answer the question is
+not available in the retrieved context, respond:
+
+"I don't have enough information in the available product data."
+
+Give a direct, concise, customer-friendly answer.
+""".strip()
+        ),
+        (
+            "human",
+            """
+Customer question:
+{question}
+
+Retrieved context:
+{context}
+
+Answer the customer's specific question using only the retrieved context.
+""".strip()
+        )
+    ]
+)
+
+    llm = get_llm()
+
+    chain = prompt | llm
+
+    #testing######
+
+    messages = prompt.format_messages(
+    question=question,
+    context=context
+    )
+
+    response = chain.invoke(
+        {
+            "question": question,
+            "context": context
+        }
+    )
+
+    return {
+        "answer": response.content,
+        "messages": [
+        AIMessage(content=response.content)
+        ]
+    }
+
+def policy_generate_node(state: ChatbotState):
+    """
+    Generate an answer for policy-related questions
+    using retrieved policy documents.
+    """
+
+    question = state["question"]
+    documents = state["documents"]
+
+    context = format_context(documents)
+
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                """
+You are an e-commerce customer support assistant
+specializing in company policies.
+
+Answer the customer's policy question using ONLY the
+retrieved policy context.
+
+Follow these rules:
+
+1. Identify exactly which policy information the customer
+   is asking about.
+
+2. Use only facts explicitly provided in the retrieved
+   policy context.
+
+3. Do not use outside knowledge.
+
+4. Do not invent policy conditions, exceptions, timelines,
+   refund amounts, delivery times, eligibility rules, or
+   other information.
+
+5. Include important conditions, limitations, and exceptions
+   when they affect the answer.
+
+6. You may perform simple logical reasoning when the conclusion
+   is directly supported by the policy context.
+
+7. If multiple policy documents are retrieved, use only the
+   documents relevant to the customer's specific question.
+
+8. Do not substitute information from an unrelated policy.
+
+9. If the policy context does not contain enough information
+   to answer the customer's specific question, respond:
+
+   "I don't have enough information in the available policy data."
+
+Give a direct, concise, customer-friendly answer.
+""".strip()
+            ),
+            (
+                "human",
+                """
+Customer question:
+{question}
+
+Retrieved policy context:
+{context}
+
+Answer the customer's question using only the retrieved policy context.
+""".strip()
+            )
+        ]
+    )
+
+    llm = get_llm()
+
+    chain = prompt | llm
+
+    response = chain.invoke(
+        {
+            "question": question,
+            "context": context
+        }
+    )
+
+    return {
+        "answer": response.content,
+        "messages": [
+            AIMessage(content=response.content)
         ]
     }
 
@@ -549,26 +783,20 @@ Standalone retrieval query:
 
 if __name__ == "__main__":
 
-    test_questions = [
-        "Hi",
-        "Thank you for your help",
-        "Which laptop should I buy?",
-        "Recommend a smartwatch",
-        "Which of those is the cheapest?",
-        "How long does delivery take?",
-        "Can I return a product after 20 days?",
-        "Can I cancel an order after it has shipped?",
-        "What is the refund policy?"
-    ]
+    state = {
+        "retrieval_query": "NovaTech Laptop 151",
+    }
 
-    for question in test_questions:
+    result = product_agent_node(state)
 
-        state = {
-            "question": question
-        }
+    print("\nDOCUMENTS:")
 
-        result = router_node(state)
-
+    for document in result["documents"]:
         print(
-            f"{question} -> {result['route']}"
+            document.metadata.get("product_name")
         )
+
+    print(
+        "\nACTIVE PRODUCTS:",
+        result["active_product_names"]
+    )
