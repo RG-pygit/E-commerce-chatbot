@@ -14,6 +14,7 @@ from src.rag.generator import (
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import AIMessage
 from src.agents.product_agent import run_product_agent
+from src.agents.policy_agent import run_policy_agent
 
 def router_node(state: ChatbotState):
     """
@@ -203,6 +204,27 @@ def product_agent_node(state: ChatbotState):
     return {
         "documents": documents,
         "active_product_names": active_product_names
+    }
+
+def policy_agent_node(state: ChatbotState):
+    """
+    Use the Policy Agent to retrieve relevant
+    company policy documents.
+    """
+
+    retrieval_query = state["retrieval_query"]
+
+    print(
+        f"POLICY AGENT INPUT: {retrieval_query}"
+    )
+
+    documents = run_policy_agent(
+        retrieval_query
+    )
+
+    return {
+        "documents": documents,
+        "active_product_names": []
     }
 
 def product_retrieve_node(state: ChatbotState):

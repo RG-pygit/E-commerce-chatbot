@@ -2,7 +2,7 @@ from langgraph.graph import StateGraph, START, END
 
 from src.graph.state import ChatbotState
 from src.graph.nodes import (router_node, conversation_node,rewrite_query_node,product_retrieve_node,
-policy_retrieve_node,product_generate_node, policy_generate_node,generate_node,product_agent_node)
+policy_retrieve_node,product_generate_node, policy_generate_node,generate_node,product_agent_node,policy_agent_node)
 
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain_core.messages import HumanMessage
@@ -31,6 +31,7 @@ def build_graph():
     builder.add_node("policy_generate",policy_generate_node)
     builder.add_node("generate", generate_node)
     builder.add_node("product_agent",product_agent_node)
+    builder.add_node("policy_agent",policy_agent_node)
 
     # Connect nodes
     # Start with router
@@ -56,11 +57,11 @@ def build_graph():
     decide_route,
     {
         "product": "product_agent",
-        "policy": "policy_retrieve"
+        "policy": "policy_agent"
     }
 )
     builder.add_edge("product_agent","product_generate")
-    builder.add_edge("policy_retrieve", "policy_generate")
+    builder.add_edge("policy_agent", "policy_generate")
     builder.add_edge("product_generate", END)
     builder.add_edge("policy_generate", END)
     
