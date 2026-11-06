@@ -7,6 +7,9 @@ policy_retrieve_node,product_generate_node, policy_generate_node,generate_node,p
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain_core.messages import HumanMessage
 
+import sqlite3
+from langgraph.checkpoint.sqlite import SqliteSaver
+
 def decide_route(state: ChatbotState):
     """
     Decide which branch LangGraph should follow
@@ -66,12 +69,29 @@ def build_graph():
     builder.add_edge("policy_generate", END)
     
 
-    # Compile graph
-    memory = InMemorySaver()
+    # # Compile graph
+    # memory = InMemorySaver()
+
+    # return builder.compile(
+    # checkpointer=memory
+
+    from pathlib import Path
+
+    db_path = Path("chatbot_memory.db").resolve()
+
+    print("SQLITE DATABASE PATH:", db_path)
+
+    connection = sqlite3.connect(
+    db_path,
+    check_same_thread=False
+    )
+
+    memory = SqliteSaver(connection)
 
     return builder.compile(
     checkpointer=memory
-)
+    )
+    
 
 
 if __name__ == "__main__":
@@ -111,18 +131,7 @@ if __name__ == "__main__":
         print("ANSWER")
         print("=" * 60)
         print(result["answer"])
-
-        # print("\n" + "=" * 60)
-        # print("MESSAGES STORED")
-        # print("=" * 60)
-
-        # for message in result["messages"]:
-        #     print(
-        #         f"{type(message).__name__}: "
-        #         f"{message.content}"
-        #     )
-
-    
+   
 
         print("\n" + "=" * 60)
         print("SOURCES")

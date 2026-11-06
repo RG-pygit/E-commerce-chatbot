@@ -11,6 +11,7 @@ class ChatbotState(TypedDict):
     route: str
     documents: list[Document]
     answer: str
+    
     active_product_names: list[str]
 
     messages: Annotated[

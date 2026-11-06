@@ -4,7 +4,7 @@ from langchain_ollama import ChatOllama
 from src.rag.retriever import search
 
 
-#MODEL_NAME = "llama3.2:3b"
+#MODEL_NAME = "llama3.2:3b" --not giving correct reasoning for policy questions
 MODEL_NAME = "gemma3:4b"
 
 

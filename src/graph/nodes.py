@@ -532,12 +532,25 @@ Answer the customer's specific question using only the retrieved context.
     context=context
     )
 
+    print("QUESTION:")
+    print(question)
+
+    print("\nCONTEXT LENGTH:")
+    print(len(context))
+
+    print("\nCONTEXT:")
+    print(context)
+    
+    print(">>> BEFORE PRODUCT LLM CALL <<<")
+
     response = chain.invoke(
         {
             "question": question,
             "context": context
         }
     )
+
+    print(">>> AFTER PRODUCT LLM CALL <<<")
 
     return {
         "answer": response.content,

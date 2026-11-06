@@ -20,3 +20,8 @@ chr*ma_db/
 # Operating system generat*d files
 .DS_Store
 Thumbs.db
+
+# LangGraph persistent conversation memory
+chatbot_memory.db
+chatbot_memory.db-shm
+chatbot_memory.db-wal
